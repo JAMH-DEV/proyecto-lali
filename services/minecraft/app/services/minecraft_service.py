@@ -1,4 +1,5 @@
 from app.rcon.client import MinecraftRconClient
+from app.commands.say import build_say_command
 
 
 class MinecraftService:
@@ -11,3 +12,9 @@ class MinecraftService:
 
     def list_players(self):
         return self._execute("list")
+
+    def say(self, message: str) -> tuple[str, str]:
+        command = build_say_command(message)
+        response = self._execute(command)
+
+        return command, response
