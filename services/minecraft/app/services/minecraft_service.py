@@ -2,7 +2,7 @@ import re
 
 from app.commands.say import build_say_command
 from app.rcon.client import MinecraftRconClient
-
+from app.commands.weather import build_weather_command
 
 class MinecraftService:
 
@@ -14,6 +14,12 @@ class MinecraftService:
 
     def say(self, message: str) -> tuple[str, str]:
         command = build_say_command(message)
+        response = self._execute(command)
+
+        return command, response
+    
+    def set_weather(self, weather: str) -> tuple[str, str]:
+        command = build_weather_command(weather)
         response = self._execute(command)
 
         return command, response
