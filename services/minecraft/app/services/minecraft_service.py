@@ -3,6 +3,7 @@ import re
 from app.commands.say import build_say_command
 from app.rcon.client import MinecraftRconClient
 from app.commands.weather import build_weather_command
+from app.commands.time import build_time_command
 
 class MinecraftService:
 
@@ -23,6 +24,12 @@ class MinecraftService:
         response = self._execute(command)
 
         return command, response
+    
+    def set_time(self, time_value: str) -> tuple[str, str]:
+        command = build_time_command(time_value)
+        response = self._execute(command)
+
+    return command, response
 
     def _parse_players(self, response: str) -> dict:
         pattern = (
