@@ -1,9 +1,10 @@
 import re
 
 from app.commands.say import build_say_command
-from app.rcon.client import MinecraftRconClient
-from app.commands.weather import build_weather_command
 from app.commands.time import build_time_command
+from app.commands.weather import build_weather_command
+from app.rcon.client import MinecraftRconClient
+
 
 class MinecraftService:
 
@@ -18,14 +19,14 @@ class MinecraftService:
         response = self._execute(command)
 
         return command, response
-    
+
     def set_weather(self, weather: str) -> tuple[str, str]:
         command = build_weather_command(weather)
         response = self._execute(command)
 
         return command, response
-    
-   def set_time(self, value: str | int) -> tuple[str, str]:
+
+    def set_time(self, value: str | int) -> tuple[str, str]:
         command = build_time_command(value)
         response = self._execute(command)
 
