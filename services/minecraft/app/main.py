@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app.core.config import settings
 from app.routes.health import router as health_router
+from app.routes.minecraft import router as minecraft_router
 
 app = FastAPI(
     title=settings.APP_NAME,
