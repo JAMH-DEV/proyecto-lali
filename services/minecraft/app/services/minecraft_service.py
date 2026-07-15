@@ -25,8 +25,8 @@ class MinecraftService:
 
         return command, response
     
-    def set_time(self, time_value: str) -> tuple[str, str]:
-        command = build_time_command(time_value)
+   def set_time(self, value: str | int) -> tuple[str, str]:
+        command = build_time_command(value)
         response = self._execute(command)
 
         return command, response

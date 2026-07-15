@@ -89,7 +89,7 @@ def set_weather(payload: WeatherRequest) -> CommandResponse:
 def set_time(payload: TimeRequest) -> CommandResponse:
     try:
         command, response = minecraft_service.set_time(
-            payload.time
+            payload.value
         )
 
         return CommandResponse(

@@ -10,13 +10,16 @@ class SayRequest(BaseModel):
     )
 
 
+
 class TimeRequest(BaseModel):
-    time: Literal[
+    value: Literal[
         "day",
         "night",
         "noon",
         "midnight",
-    ]
+    ] | int = Field(
+        description="Puede ser una palabra clave o un valor entre 0 y 24000."
+    )
 
 
 class WeatherRequest(BaseModel):

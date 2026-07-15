@@ -6,13 +6,22 @@ VALID_TIMES = {
 }
 
 
-def build_time_command(time_value: str) -> str:
-    normalized_time = time_value.strip().lower()
+def build_time_command(value: str | int) -> str:
 
-    if normalized_time not in VALID_TIMES:
-        allowed = ", ".join(sorted(VALID_TIMES))
+    if isinstance(value, int):
+
+        if value < 0 or value > 24000:
+            raise ValueError(
+                "El valor debe estar entre 0 y 24000."
+            )
+
+        return f"time set {value}"
+
+    normalized = value.strip().lower()
+
+    if normalized not in VALID_TIMES:
         raise ValueError(
-            f"Tiempo inválido. Valores permitidos: {allowed}"
+            "Tiempo inválido."
         )
 
-    return f"time set {normalized_time}"
+    return f"time set {normalized}"
