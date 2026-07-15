@@ -1,7 +1,8 @@
 from pydantic import BaseModel
 
 
-class CommandResponse(BaseModel):
+class PlayersResponse(BaseModel):
     success: bool
-    command: str
-    response: str
+    online: int
+    max_players: int
+    players: list[str]

@@ -1,26 +1,30 @@
 from fastapi import APIRouter, HTTPException
 
-from app.schemas.response import CommandResponse
-from app.services.minecraft_service import MinecraftService
 from app.schemas.request import SayRequest
+from app.schemas.response import (
+    CommandResponse,
+    PlayersResponse,
+)
+from app.services.minecraft_service import MinecraftService
 
 router = APIRouter()
 
 minecraft_service = MinecraftService()
 
 
-@router.get("/players", response_model=CommandResponse)
-def list_players() -> CommandResponse:
+@router.get("/players", response_model=PlayersResponse)
+def list_players() -> PlayersResponse:
     try:
-        response = minecraft_service.list_players()
+        players = minecraft_service.list_players()
 
-        return CommandResponse(
+        return PlayersResponse(
             success=True,
-            command="list",
-            response=response,
+            online=players["online"],
+            max_players=players["max_players"],
+            players=players["players"],
         )
 
-    except ConnectionError as error:
+    except Exception as error:
         raise HTTPException(
             status_code=503,
             detail=str(error),
@@ -30,7 +34,9 @@ def list_players() -> CommandResponse:
 @router.post("/say", response_model=CommandResponse)
 def say(payload: SayRequest) -> CommandResponse:
     try:
-        command, response = minecraft_service.say(payload.message)
+        command, response = minecraft_service.say(
+            payload.message
+        )
 
         return CommandResponse(
             success=True,

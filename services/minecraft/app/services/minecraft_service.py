@@ -1,5 +1,7 @@
-from app.rcon.client import MinecraftRconClient
+import re
+
 from app.commands.say import build_say_command
+from app.rcon.client import MinecraftRconClient
 
 
 class MinecraftService:
@@ -10,11 +12,43 @@ class MinecraftService:
     def _execute(self, command: str) -> str:
         return self.rcon_client.execute(command)
 
-    def list_players(self):
-        return self._execute("list")
-
     def say(self, message: str) -> tuple[str, str]:
         command = build_say_command(message)
         response = self._execute(command)
 
         return command, response
+
+    def _parse_players(self, response: str) -> dict:
+        pattern = (
+            r"There are (\d+) of a max of (\d+) players online:? ?(.*)"
+        )
+
+        match = re.match(pattern, response)
+
+        if not match:
+            raise ValueError(
+                f"No fue posible interpretar la respuesta: {response}"
+            )
+
+        online = int(match.group(1))
+        maximum = int(match.group(2))
+
+        players = []
+
+        if match.group(3):
+            players = [
+                player.strip()
+                for player in match.group(3).split(",")
+                if player.strip()
+            ]
+
+        return {
+            "online": online,
+            "max_players": maximum,
+            "players": players,
+        }
+
+    def list_players(self) -> dict:
+        response = self._execute("list")
+
+        return self._parse_players(response)
