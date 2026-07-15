@@ -1,10 +1,13 @@
 from fastapi import APIRouter, HTTPException
 
-from app.schemas.request import SayRequest
+from app.schemas.request import (
+    SayRequest,
+    TimeRequest,
+    WeatherRequest,
+)
 from app.schemas.response import (
     CommandResponse,
     PlayersResponse,
-    WeatherRequest,
 )
 from app.services.minecraft_service import MinecraftService
 

@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field
 from typing import Literal
+
+from pydantic import BaseModel, Field
 
 
 class SayRequest(BaseModel):
@@ -7,6 +8,16 @@ class SayRequest(BaseModel):
         min_length=1,
         max_length=200,
     )
+
+
+class TimeRequest(BaseModel):
+    time: Literal[
+        "day",
+        "night",
+        "noon",
+        "midnight",
+    ]
+
 
 class WeatherRequest(BaseModel):
     weather: Literal[
