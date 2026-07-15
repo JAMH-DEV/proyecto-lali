@@ -29,7 +29,7 @@ class MinecraftService:
         command = build_time_command(time_value)
         response = self._execute(command)
 
-    return command, response
+        return command, response
 
     def _parse_players(self, response: str) -> dict:
         pattern = (
