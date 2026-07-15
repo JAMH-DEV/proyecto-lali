@@ -17,3 +17,9 @@ app.include_router(
     prefix="/api/v1",
     tags=["Health"],
 )
+
+app.include_router(
+    minecraft_router,
+    prefix="/api/v1/minecraft",
+    tags=["Minecraft"],
+)
