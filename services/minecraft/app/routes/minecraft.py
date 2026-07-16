@@ -11,6 +11,7 @@ from app.schemas.request import (
 from app.schemas.response import (
     CommandResponse,
     PlayersResponse,
+    SummonResponse,
 )
 from app.services.minecraft_service import MinecraftService
 
@@ -169,20 +170,24 @@ def clear_inventory(
             detail=str(error),
         ) from error
 
-@router.post("/summon", response_model=CommandResponse)
-def summon(payload: SummonRequest) -> CommandResponse:
+@router.post("/summon", response_model=SummonResponse)
+def summon(payload: SummonRequest) -> SummonResponse:
     try:
-        command, response = minecraft_service.summon(
-            payload.mob,
-            payload.x,
-            payload.y,
-            payload.z,
+        commands, responses = minecraft_service.summon(
+            mob=payload.mob,
+            player=payload.player,
+            x=payload.x,
+            y=payload.y,
+            z=payload.z,
+            count=payload.count,
         )
 
-        return CommandResponse(
+        return SummonResponse(
             success=True,
-            command=command,
-            response=response,
+            mob=payload.mob,
+            count=payload.count,
+            commands=commands,
+            responses=responses,
         )
 
     except ValueError as error:

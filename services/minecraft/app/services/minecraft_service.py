@@ -103,16 +103,27 @@ class MinecraftService:
     def summon(
         self,
         mob: str,
+        player: str | None = None,
         x: float | None = None,
         y: float | None = None,
         z: float | None = None,
-    ) -> tuple[str, str]:
+        count: int = 1,
+    ) -> tuple[list[str], list[str]]:
         command = build_summon_command(
-            mob,
-            x,
-            y,
-            z,
+            mob=mob,
+            player=player,
+            x=x,
+            y=y,
+            z=z,
         )
-        response = self._execute(command)
 
-        return command, response
+        commands = []
+        responses = []
+
+        for _ in range(count):
+            response = self._execute(command)
+
+            commands.append(command)
+            responses.append(response)
+
+        return commands, responses

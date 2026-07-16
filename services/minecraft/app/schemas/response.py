@@ -12,3 +12,10 @@ class PlayersResponse(BaseModel):
     online: int
     max_players: int
     players: list[str]
+
+class SummonResponse(BaseModel):
+    success: bool
+    mob: str
+    count: int
+    commands: list[str]
+    responses: list[str]
