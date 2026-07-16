@@ -201,16 +201,17 @@ class MinecraftService:
         response = self._execute(command)
 
         return command, response
+   
     def list_whitelist(self) -> dict:
-    response = self._execute("whitelist list")
+        response = self._execute("whitelist list")
 
-    return self._parse_name_list(
-        response=response,
-        empty_phrases={
-            "There are no whitelisted players",
-            "There are no whitelisted players.",
-        },
-    )
+        return self._parse_name_list(
+            response=response,
+            empty_phrases={
+                "There are no whitelisted players",
+                "There are no whitelisted players.",
+            },
+        )
 
 
     def list_banned_players(self) -> dict:
