@@ -430,3 +430,78 @@ class KillRequest(BaseModel):
                 )
 
         return self
+
+class ServerActionRequest(BaseModel):
+        action: Literal[
+            "whitelist_on",
+            "whitelist_off",
+            "whitelist_add",
+            "whitelist_remove",
+            "whitelist_reload",
+            "op",
+            "deop",
+            "kick",
+            "ban",
+            "pardon",
+            "save",
+            "stop",
+        ]
+
+        player: str | None = Field(
+            default=None,
+            min_length=3,
+            max_length=16,
+            pattern=r"^[A-Za-z0-9_]+$",
+        )
+
+        reason: str | None = Field(
+            default=None,
+            max_length=150,
+        )
+
+        confirm: bool = False
+
+        @model_validator(mode="after")
+        def validate_action_parameters(self):
+            player_actions = {
+                "whitelist_add",
+                "whitelist_remove",
+                "op",
+                "deop",
+                "kick",
+                "ban",
+                "pardon",
+            }
+
+            dangerous_actions = {
+                "whitelist_off",
+                "op",
+                "ban",
+                "stop",
+            }
+
+            if self.action in player_actions:
+                if self.player is None:
+                    raise ValueError(
+                        f"La acción '{self.action}' requiere player."
+                    )
+
+            elif self.player is not None:
+                raise ValueError(
+                    f"La acción '{self.action}' no acepta player."
+                )
+
+            if self.reason is not None and self.action not in {
+                "kick",
+                "ban",
+            }:
+                raise ValueError(
+                    "reason solo está permitido para kick y ban."
+                )
+
+            if self.action in dangerous_actions and not self.confirm:
+                raise ValueError(
+                    f"La acción '{self.action}' requiere confirm=true."
+                )
+
+            return self

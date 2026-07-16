@@ -9,6 +9,7 @@ from app.commands.clear import build_clear_command
 from app.commands.summon import build_summon_command
 from app.commands.player import build_player_action_command
 from app.commands.kill import build_kill_command
+from app.commands.server import build_server_command
 
 
 class MinecraftService:
@@ -176,6 +177,24 @@ class MinecraftService:
             y=y,
             z=z,
             include_players=include_players,
+            confirm=confirm,
+        )
+
+        response = self._execute(command)
+
+        return command, response
+    
+    def manage_server(
+        self,
+        action: str,
+        player: str | None = None,
+        reason: str | None = None,
+        confirm: bool = False,
+    ) -> tuple[str, str]:
+        command = build_server_command(
+            action=action,
+            player=player,
+            reason=reason,
             confirm=confirm,
         )
 

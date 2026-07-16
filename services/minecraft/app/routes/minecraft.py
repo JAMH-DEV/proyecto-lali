@@ -9,6 +9,7 @@ from app.schemas.request import (
     SummonRequest,
     PlayerActionRequest,
     KillRequest,
+    ServerActionRequest,
 )
 from app.schemas.response import (
     CommandResponse,
@@ -257,6 +258,39 @@ def kill(
             y=payload.y,
             z=payload.z,
             include_players=payload.include_players,
+            confirm=payload.confirm,
+        )
+
+        return CommandResponse(
+            success=True,
+            command=command,
+            response=response,
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        ) from error
+
+    except ConnectionError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
+
+@router.post(
+    "/server",
+    response_model=CommandResponse,
+)
+def manage_server(
+    payload: ServerActionRequest,
+) -> CommandResponse:
+    try:
+        command, response = minecraft_service.manage_server(
+            action=payload.action,
+            player=payload.player,
+            reason=payload.reason,
             confirm=payload.confirm,
         )
 
