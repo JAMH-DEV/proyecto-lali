@@ -5,6 +5,7 @@ from app.commands.time import build_time_command
 from app.commands.weather import build_weather_command
 from app.rcon.client import MinecraftRconClient
 from app.commands.give import build_give_command
+from app.commands.clear import build_clear_command
 
 
 class MinecraftService:
@@ -82,3 +83,18 @@ class MinecraftService:
         response = self._execute("list")
 
         return self._parse_players(response)
+
+    def clear_inventory(
+        self,
+        player: str,
+        item: str | None = None,
+        quantity: int | None = None,
+    ) -> tuple[str, str]:
+        command = build_clear_command(
+            player,
+            item,
+            quantity,
+        )
+        response = self._execute(command)
+
+        return command, response

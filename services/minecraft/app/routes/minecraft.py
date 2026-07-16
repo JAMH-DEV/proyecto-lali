@@ -5,6 +5,7 @@ from app.schemas.request import (
     TimeRequest,
     WeatherRequest,
     GiveRequest,
+    ClearRequest,
 )
 from app.schemas.response import (
     CommandResponse,
@@ -115,6 +116,35 @@ def set_time(payload: TimeRequest) -> CommandResponse:
 def give_item(payload: GiveRequest) -> CommandResponse:
     try:
         command, response = minecraft_service.give_item(
+            payload.player,
+            payload.item,
+            payload.quantity,
+        )
+
+        return CommandResponse(
+            success=True,
+            command=command,
+            response=response,
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        ) from error
+
+    except ConnectionError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
+
+@router.post("/clear", response_model=CommandResponse)
+def clear_inventory(
+    payload: ClearRequest,
+) -> CommandResponse:
+    try:
+        command, response = minecraft_service.clear_inventory(
             payload.player,
             payload.item,
             payload.quantity,

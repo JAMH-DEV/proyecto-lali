@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator,
 
 
 class SayRequest(BaseModel):
@@ -43,3 +43,28 @@ class GiveRequest(BaseModel):
         ge=1,
         le=640,
     )
+
+class ClearRequest(BaseModel):
+    player: str = Field(
+        min_length=3,
+        max_length=16,
+        pattern=r"^[A-Za-z0-9_]+$",
+    )
+    item: str | None = Field(
+        default=None,
+        pattern=r"^(?:minecraft:)?[a-z0-9_]+$",
+    )
+    quantity: int | None = Field(
+        default=None,
+        ge=1,
+        le=640,
+    )
+
+    @model_validator(mode="after")
+    def validate_quantity_requires_item(self):
+        if self.quantity is not None and self.item is None:
+            raise ValueError(
+                "No puedes indicar una cantidad sin especificar un objeto."
+            )
+
+        return self
