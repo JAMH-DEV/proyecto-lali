@@ -117,3 +117,177 @@ class SummonRequest(BaseModel):
             )
 
         return self
+
+
+class PlayerActionRequest(BaseModel):
+    player: str = Field(
+        min_length=3,
+        max_length=16,
+        pattern=r"^[A-Za-z0-9_]+$",
+    )
+
+    action: Literal[
+        "heal",
+        "damage",
+        "set_max_health",
+        "add_absorption",
+        "clear_absorption",
+        "fill_food",
+        "apply_hunger",
+    ]
+
+    value: int | None = Field(
+        default=None,
+        ge=1,
+        le=100,
+    )
+
+    @model_validator(mode="after")
+    def validate_value(self):
+        actions_requiring_value = {
+            "damage",
+            "set_max_health",
+            "add_absorption",
+            "apply_hunger",
+        }
+
+        if self.action in actions_requiring_value and self.value is None:
+            raise ValueError(
+                f"La acción '{self.action}' requiere un valor."
+            )
+
+        if self.action not in actions_requiring_value and self.value is not None:
+            raise ValueError(
+                f"La acción '{self.action}' no acepta un valor."
+            )
+
+        return self
+
+class PlayerActionRequest(BaseModel):
+    player: str = Field(
+        min_length=3,
+        max_length=16,
+        pattern=r"^[A-Za-z0-9_]+$",
+    )
+
+    action: Literal[
+        "heal",
+        "damage",
+        "set_max_health",
+        "add_absorption",
+        "clear_absorption",
+        "fill_food",
+        "apply_hunger",
+        "teleport_coordinates",
+        "teleport_player",
+    ]
+
+    value: int | None = None
+
+    target_player: str | None = Field(
+        default=None,
+        min_length=3,
+        max_length=16,
+        pattern=r"^[A-Za-z0-9_]+$",
+    )
+
+    x: float | None = None
+    y: float | None = None
+    z: float | None = None
+
+    @model_validator(mode="after")
+    def validate_action_parameters(self):
+        value_actions = {
+            "damage",
+            "set_max_health",
+            "add_absorption",
+            "apply_hunger",
+        }
+
+        actions_without_parameters = {
+            "heal",
+            "clear_absorption",
+            "fill_food",
+        }
+
+        coordinates = (
+            self.x,
+            self.y,
+            self.z,
+        )
+
+        has_any_coordinate = any(
+            coordinate is not None
+            for coordinate in coordinates
+        )
+
+        has_all_coordinates = all(
+            coordinate is not None
+            for coordinate in coordinates
+        )
+
+        if self.action in value_actions:
+            if self.value is None:
+                raise ValueError(
+                    f"La acción '{self.action}' requiere value."
+                )
+
+            if self.target_player is not None:
+                raise ValueError(
+                    f"La acción '{self.action}' no acepta target_player."
+                )
+
+            if has_any_coordinate:
+                raise ValueError(
+                    f"La acción '{self.action}' no acepta coordenadas."
+                )
+
+        elif self.action in actions_without_parameters:
+            if self.value is not None:
+                raise ValueError(
+                    f"La acción '{self.action}' no acepta value."
+                )
+
+            if self.target_player is not None:
+                raise ValueError(
+                    f"La acción '{self.action}' no acepta target_player."
+                )
+
+            if has_any_coordinate:
+                raise ValueError(
+                    f"La acción '{self.action}' no acepta coordenadas."
+                )
+
+        elif self.action == "teleport_coordinates":
+            if not has_all_coordinates:
+                raise ValueError(
+                    "Debes proporcionar las coordenadas x, y y z."
+                )
+
+            if self.target_player is not None:
+                raise ValueError(
+                    "No envíes target_player al usar coordenadas."
+                )
+
+            if self.value is not None:
+                raise ValueError(
+                    "La acción 'teleport_coordinates' no acepta value."
+                )
+
+        elif self.action == "teleport_player":
+            if self.target_player is None:
+                raise ValueError(
+                    "La acción 'teleport_player' requiere target_player."
+                )
+
+            if has_any_coordinate:
+                raise ValueError(
+                    "No envíes coordenadas al usar target_player."
+                )
+
+            if self.value is not None:
+                raise ValueError(
+                    "La acción 'teleport_player' no acepta value."
+                )
+
+        return self

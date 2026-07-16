@@ -7,6 +7,7 @@ from app.rcon.client import MinecraftRconClient
 from app.commands.give import build_give_command
 from app.commands.clear import build_clear_command
 from app.commands.summon import build_summon_command
+from app.commands.player import build_player_action_command
 
 
 class MinecraftService:
@@ -127,3 +128,28 @@ class MinecraftService:
             responses.append(response)
 
         return commands, responses
+
+
+    def modify_player(
+        self,
+        player: str,
+        action: str,
+        value: int | None = None,
+        target_player: str | None = None,
+        x: float | None = None,
+        y: float | None = None,
+        z: float | None = None,
+    ) -> tuple[str, str]:
+        command = build_player_action_command(
+            player=player,
+            action=action,
+            value=value,
+            target_player=target_player,
+            x=x,
+            y=y,
+            z=z,
+        )
+
+        response = self._execute(command)
+
+        return command, response

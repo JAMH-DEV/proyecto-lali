@@ -7,6 +7,7 @@ from app.schemas.request import (
     GiveRequest,
     ClearRequest,
     SummonRequest,
+    PlayerActionRequest,
 )
 from app.schemas.response import (
     CommandResponse,
@@ -188,6 +189,42 @@ def summon(payload: SummonRequest) -> SummonResponse:
             count=payload.count,
             commands=commands,
             responses=responses,
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        ) from error
+
+    except ConnectionError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
+
+@router.post(
+    "/player",
+    response_model=CommandResponse,
+)
+def modify_player(
+    payload: PlayerActionRequest,
+) -> CommandResponse:
+    try:
+        command, response = minecraft_service.modify_player(
+            player=payload.player,
+            action=payload.action,
+            value=payload.value,
+            target_player=payload.target_player,
+            x=payload.x,
+            y=payload.y,
+            z=payload.z,
+        )
+
+        return CommandResponse(
+            success=True,
+            command=command,
+            response=response,
         )
 
     except ValueError as error:
