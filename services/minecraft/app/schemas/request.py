@@ -10,7 +10,6 @@ class SayRequest(BaseModel):
     )
 
 
-
 class TimeRequest(BaseModel):
     value: Literal[
         "day",
@@ -28,3 +27,19 @@ class WeatherRequest(BaseModel):
         "rain",
         "thunder",
     ]
+
+
+class GiveRequest(BaseModel):
+    player: str = Field(
+        min_length=3,
+        max_length=16,
+        pattern=r"^[A-Za-z0-9_]+$",
+    )
+    item: str = Field(
+        min_length=1,
+        pattern=r"^(?:minecraft:)?[a-z0-9_]+$",
+    )
+    quantity: int = Field(
+        ge=1,
+        le=640,
+    )

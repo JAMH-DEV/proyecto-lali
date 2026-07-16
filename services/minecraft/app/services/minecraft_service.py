@@ -4,6 +4,7 @@ from app.commands.say import build_say_command
 from app.commands.time import build_time_command
 from app.commands.weather import build_weather_command
 from app.rcon.client import MinecraftRconClient
+from app.commands.give import build_give_command
 
 
 class MinecraftService:
@@ -31,6 +32,21 @@ class MinecraftService:
         response = self._execute(command)
 
         return command, response
+    def give_item(
+        self,
+        player: str,
+        item: str,
+        quantity: int,
+    ) -> tuple[str, str]:
+        command = build_give_command(
+            player,
+            item,
+            quantity,
+        )
+        response = self._execute(command)
+
+        return command, response
+
 
     def _parse_players(self, response: str) -> dict:
         pattern = (
