@@ -6,6 +6,7 @@ from app.commands.weather import build_weather_command
 from app.rcon.client import MinecraftRconClient
 from app.commands.give import build_give_command
 from app.commands.clear import build_clear_command
+from app.commands.summon import build_summon_command
 
 
 class MinecraftService:
@@ -94,6 +95,23 @@ class MinecraftService:
             player,
             item,
             quantity,
+        )
+        response = self._execute(command)
+
+        return command, response
+
+    def summon(
+        self,
+        mob: str,
+        x: float | None = None,
+        y: float | None = None,
+        z: float | None = None,
+    ) -> tuple[str, str]:
+        command = build_summon_command(
+            mob,
+            x,
+            y,
+            z,
         )
         response = self._execute(command)
 

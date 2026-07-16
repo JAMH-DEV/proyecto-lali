@@ -6,6 +6,7 @@ from app.schemas.request import (
     WeatherRequest,
     GiveRequest,
     ClearRequest,
+    SummonRequest,
 )
 from app.schemas.response import (
     CommandResponse,
@@ -148,6 +149,34 @@ def clear_inventory(
             payload.player,
             payload.item,
             payload.quantity,
+        )
+
+        return CommandResponse(
+            success=True,
+            command=command,
+            response=response,
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        ) from error
+
+    except ConnectionError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
+
+@router.post("/summon", response_model=CommandResponse)
+def summon(payload: SummonRequest) -> CommandResponse:
+    try:
+        command, response = minecraft_service.summon(
+            payload.mob,
+            payload.x,
+            payload.y,
+            payload.z,
         )
 
         return CommandResponse(

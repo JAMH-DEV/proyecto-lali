@@ -68,3 +68,25 @@ class ClearRequest(BaseModel):
             )
 
         return self
+
+class SummonRequest(BaseModel):
+    mob: str = Field(
+        min_length=1,
+        pattern=r"^(?:minecraft:)?[a-z0-9_]+$",
+    )
+    x: float | None = None
+    y: float | None = None
+    z: float | None = None
+
+    @model_validator(mode="after")
+    def validate_coordinates(self):
+        coordinates = (self.x, self.y, self.z)
+
+        if any(value is not None for value in coordinates) and any(
+            value is None for value in coordinates
+        ):
+            raise ValueError(
+                "Debes enviar las tres coordenadas: x, y y z."
+            )
+
+        return self
