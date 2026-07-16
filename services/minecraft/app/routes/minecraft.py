@@ -12,9 +12,13 @@ from app.schemas.request import (
     ServerActionRequest,
 )
 from app.schemas.response import (
+    BannedIpsResponse,
+    BannedPlayersResponse,
     CommandResponse,
     PlayersResponse,
+    ServerStatusResponse,
     SummonResponse,
+    WhitelistResponse,
 )
 from app.services.minecraft_service import MinecraftService
 
@@ -22,7 +26,7 @@ router = APIRouter()
 
 minecraft_service = MinecraftService()
 
-
+#GETS
 @router.get("/players", response_model=PlayersResponse)
 def list_players() -> PlayersResponse:
     try:
@@ -41,7 +45,107 @@ def list_players() -> PlayersResponse:
             detail=str(error),
         ) from error
 
+@router.get(
+    "/server/whitelist",
+    response_model=WhitelistResponse,
+)
+def list_whitelist() -> WhitelistResponse:
+    try:
+        whitelist = minecraft_service.list_whitelist()
 
+        return WhitelistResponse(
+            success=True,
+            count=whitelist["count"],
+            players=whitelist["players"],
+        )
+
+    except ConnectionError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=500,
+            detail=str(error),
+        ) from error
+
+@router.get(
+    "/server/bans/players",
+    response_model=BannedPlayersResponse,
+)
+def list_banned_players() -> BannedPlayersResponse:
+    try:
+        bans = minecraft_service.list_banned_players()
+
+        return BannedPlayersResponse(
+            success=True,
+            count=bans["count"],
+            players=bans["players"],
+        )
+
+    except ConnectionError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=500,
+            detail=str(error),
+        ) from error
+
+@router.get(
+    "/server/bans/ips",
+    response_model=BannedIpsResponse,
+)
+def list_banned_ips() -> BannedIpsResponse:
+    try:
+        bans = minecraft_service.list_banned_ips()
+
+        return BannedIpsResponse(
+            success=True,
+            count=bans["count"],
+            ips=bans["ips"],
+        )
+
+    except ConnectionError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=500,
+            detail=str(error),
+        ) from error
+
+@router.get(
+    "/server/status",
+    response_model=ServerStatusResponse,
+)
+def get_server_status() -> ServerStatusResponse:
+    try:
+        status = minecraft_service.get_server_status()
+
+        return ServerStatusResponse(
+            success=True,
+            reachable=status["reachable"],
+            online=status["online"],
+            max_players=status["max_players"],
+            players=status["players"],
+        )
+
+    except ConnectionError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
+
+#POST
 @router.post("/say", response_model=CommandResponse)
 def say(payload: SayRequest) -> CommandResponse:
     try:

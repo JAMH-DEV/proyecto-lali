@@ -201,3 +201,93 @@ class MinecraftService:
         response = self._execute(command)
 
         return command, response
+    def list_whitelist(self) -> dict:
+    response = self._execute("whitelist list")
+
+    return self._parse_name_list(
+        response=response,
+        empty_phrases={
+            "There are no whitelisted players",
+            "There are no whitelisted players.",
+        },
+    )
+
+
+    def list_banned_players(self) -> dict:
+        response = self._execute("banlist players")
+
+        return self._parse_name_list(
+            response=response,
+            empty_phrases={
+                "There are no bans",
+                "There are no bans.",
+                "There are no banned players",
+                "There are no banned players.",
+            },
+        )
+
+
+    def list_banned_ips(self) -> dict:
+        response = self._execute("banlist ips")
+
+        parsed = self._parse_name_list(
+            response=response,
+            empty_phrases={
+                "There are no bans",
+                "There are no bans.",
+                "There are no banned IPs",
+                "There are no banned IPs.",
+            },
+        )
+
+        return {
+            "count": parsed["count"],
+            "ips": parsed["players"],
+        }
+
+
+    def get_server_status(self) -> dict:
+        players = self.list_players()
+
+        return {
+            "reachable": True,
+            "online": players["online"],
+            "max_players": players["max_players"],
+            "players": players["players"],
+        }
+
+
+    def _parse_name_list(
+        self,
+        response: str,
+        empty_phrases: set[str],
+    ) -> dict:
+        normalized_response = response.strip()
+
+        if normalized_response in empty_phrases:
+            return {
+                "count": 0,
+                "players": [],
+            }
+
+        if ":" in normalized_response:
+            names_text = normalized_response.split(":", 1)[1].strip()
+        else:
+            names_text = normalized_response
+
+        if not names_text:
+            return {
+                "count": 0,
+                "players": [],
+            }
+
+        players = [
+            name.strip()
+            for name in names_text.split(",")
+            if name.strip()
+        ]
+
+        return {
+            "count": len(players),
+            "players": players,
+        }
