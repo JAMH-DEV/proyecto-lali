@@ -8,6 +8,7 @@ from app.commands.give import build_give_command
 from app.commands.clear import build_clear_command
 from app.commands.summon import build_summon_command
 from app.commands.player import build_player_action_command
+from app.commands.kill import build_kill_command
 
 
 class MinecraftService:
@@ -148,6 +149,34 @@ class MinecraftService:
             x=x,
             y=y,
             z=z,
+        )
+
+        response = self._execute(command)
+
+        return command, response
+
+    def kill(
+        self,
+        action: str,
+        player: str | None = None,
+        mob: str | None = None,
+        radius: float | None = None,
+        x: float | None = None,
+        y: float | None = None,
+        z: float | None = None,
+        include_players: bool = False,
+        confirm: bool = False,
+    ) -> tuple[str, str]:
+        command = build_kill_command(
+            action=action,
+            player=player,
+            mob=mob,
+            radius=radius,
+            x=x,
+            y=y,
+            z=z,
+            include_players=include_players,
+            confirm=confirm,
         )
 
         response = self._execute(command)

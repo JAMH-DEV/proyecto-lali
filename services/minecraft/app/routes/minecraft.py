@@ -8,6 +8,7 @@ from app.schemas.request import (
     ClearRequest,
     SummonRequest,
     PlayerActionRequest,
+    KillRequest,
 )
 from app.schemas.response import (
     CommandResponse,
@@ -219,6 +220,44 @@ def modify_player(
             x=payload.x,
             y=payload.y,
             z=payload.z,
+        )
+
+        return CommandResponse(
+            success=True,
+            command=command,
+            response=response,
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        ) from error
+
+    except ConnectionError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=str(error),
+        ) from error
+
+@router.post(
+    "/kill",
+    response_model=CommandResponse,
+)
+def kill(
+    payload: KillRequest,
+) -> CommandResponse:
+    try:
+        command, response = minecraft_service.kill(
+            action=payload.action,
+            player=payload.player,
+            mob=payload.mob,
+            radius=payload.radius,
+            x=payload.x,
+            y=payload.y,
+            z=payload.z,
+            include_players=payload.include_players,
+            confirm=payload.confirm,
         )
 
         return CommandResponse(

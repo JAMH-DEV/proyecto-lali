@@ -291,3 +291,142 @@ class PlayerActionRequest(BaseModel):
                 )
 
         return self
+
+class KillRequest(BaseModel):
+    action: Literal[
+        "player",
+        "mob_type",
+        "near_player",
+        "near_coordinates",
+        "all_players",
+        "all_entities",
+    ]
+
+    player: str | None = Field(
+        default=None,
+        min_length=3,
+        max_length=16,
+        pattern=r"^[A-Za-z0-9_]+$",
+    )
+
+    mob: str | None = Field(
+        default=None,
+        min_length=1,
+        pattern=r"^(?:minecraft:)?[a-z0-9_]+$",
+    )
+
+    radius: float | None = Field(
+        default=None,
+        gt=0,
+        le=200,
+    )
+
+    x: float | None = None
+    y: float | None = None
+    z: float | None = None
+
+    include_players: bool = False
+    confirm: bool = False
+
+    @model_validator(mode="after")
+    def validate_action_parameters(self):
+        coordinates = (
+            self.x,
+            self.y,
+            self.z,
+        )
+
+        has_any_coordinate = any(
+            coordinate is not None
+            for coordinate in coordinates
+        )
+
+        has_all_coordinates = all(
+            coordinate is not None
+            for coordinate in coordinates
+        )
+
+        if self.action == "player":
+            if self.player is None:
+                raise ValueError(
+                    "La acción 'player' requiere player."
+                )
+
+            if self.mob is not None:
+                raise ValueError(
+                    "La acción 'player' no acepta mob."
+                )
+
+            if self.radius is not None or has_any_coordinate:
+                raise ValueError(
+                    "La acción 'player' no acepta área."
+                )
+
+        elif self.action == "mob_type":
+            if self.mob is None:
+                raise ValueError(
+                    "La acción 'mob_type' requiere mob."
+                )
+
+            if self.player is not None:
+                raise ValueError(
+                    "La acción 'mob_type' no acepta player."
+                )
+
+            if self.radius is not None or has_any_coordinate:
+                raise ValueError(
+                    "La acción 'mob_type' no acepta área."
+                )
+
+        elif self.action == "near_player":
+            if self.player is None:
+                raise ValueError(
+                    "La acción 'near_player' requiere player."
+                )
+
+            if self.radius is None:
+                raise ValueError(
+                    "La acción 'near_player' requiere radius."
+                )
+
+            if has_any_coordinate:
+                raise ValueError(
+                    "La acción 'near_player' no acepta coordenadas."
+                )
+
+        elif self.action == "near_coordinates":
+            if self.radius is None:
+                raise ValueError(
+                    "La acción 'near_coordinates' requiere radius."
+                )
+
+            if not has_all_coordinates:
+                raise ValueError(
+                    "Debes proporcionar x, y y z."
+                )
+
+            if self.player is not None:
+                raise ValueError(
+                    "La acción 'near_coordinates' no acepta player."
+                )
+
+        elif self.action in {
+            "all_players",
+            "all_entities",
+        }:
+            if not self.confirm:
+                raise ValueError(
+                    f"La acción '{self.action}' requiere confirm=true."
+                )
+
+            if (
+                self.player is not None
+                or self.mob is not None
+                or self.radius is not None
+                or has_any_coordinate
+            ):
+                raise ValueError(
+                    f"La acción '{self.action}' no acepta filtros."
+                )
+
+        return self
